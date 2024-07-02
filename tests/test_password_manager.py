@@ -1,23 +1,27 @@
 import unittest
 from source.password_manager import PasswordManager
+from unittest.mock import patch
 
 class TestPasswordManager(unittest.TestCase):
-    def setUp(self):
-        self.manager = PasswordManager("masterpassword", filename='test_passwords.json')
-        self.manager.data = {}  # Reset data for testing
+    @patch('getpass.getpass', return_value='masterpassword')
+    def setUp(self, mock_getpass):
+        self.manager = PasswordManager(filename='test_passwords.json')
 
-    def test_add_and_get_entry(self):
-        self.manager.add_entry("example.com", "user", "password")
-        entry = self.manager.get_entry("example.com")
-        self.assertIsNotNone(entry)
-        self.assertEqual(entry['username'], "user")
-        self.assertEqual(entry['password'], "password")
+    @patch('getpass.getpass', return_value='masterpassword')
+    def test_save_password(self, mock_getpass):
+        self.manager.save_password('example.com', 'user', 'pass')
+        self.assertIn('example.com', self.manager.passwords)
 
-    def test_delete_entry(self):
-        self.manager.add_entry("example.com", "user", "password")
-        self.manager.delete_entry("example.com")
-        entry = self.manager.get_entry("example.com")
-        self.assertIsNone(entry)
+    @patch('getpass.getpass', return_value='masterpassword')
+    def test_get_password(self, mock_getpass):
+        self.manager.save_password('example.com', 'user', 'pass')
+        password = self.manager.get_password('example.com')
+        self.assertEqual(password['password'], 'pass')
 
-if __name__ == '__main__':
+    def tearDown(self):
+        os.remove('test_passwords.json')
+        if os.path.exists('master.txt'):
+            os.remove('master.txt')
+
+if __name__ == "__main__":
     unittest.main()

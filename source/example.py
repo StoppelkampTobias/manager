@@ -3,7 +3,7 @@ import os
 import getpass
 import hashlib
 
-class PasswordManager:
+class example:
     def __init__(self, filename='passwords.json'):
         self.filename = filename
         self.passwords = self.load_passwords()
