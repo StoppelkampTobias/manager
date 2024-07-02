@@ -2,6 +2,7 @@ import json
 import os
 import getpass
 import hashlib
+import base64
 
 class PasswordManager:
     def __init__(self, filename='passwords.json'):
@@ -38,7 +39,8 @@ class PasswordManager:
 
     def save_password(self, website, username, password):
         if self.verify_master_password():
-            self.passwords[website] = {'username': username, 'password': password}
+            encrypted_password = base64.b64encode(password.encode()).decode()
+            self.passwords[website] = {'username': username, 'password': encrypted_password}
             self.save_passwords()
             print(f"Passwort für {website} gespeichert.")
         else:
@@ -47,7 +49,9 @@ class PasswordManager:
     def get_password(self, website):
         if self.verify_master_password():
             if website in self.passwords:
-                return self.passwords[website]
+                encrypted_password = self.passwords[website]['password']
+                decrypted_password = base64.b64decode(encrypted_password.encode()).decode()
+                return {'username': self.passwords[website]['username'], 'password': decrypted_password}
             else:
                 return "Kein Passwort für diese Website gefunden."
         else:

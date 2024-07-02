@@ -1,6 +1,7 @@
 import unittest
 from source.password_manager import PasswordManager
 from unittest.mock import patch
+import os
 
 class TestPasswordManager(unittest.TestCase):
     @patch('getpass.getpass', return_value='masterpassword')
@@ -19,7 +20,8 @@ class TestPasswordManager(unittest.TestCase):
         self.assertEqual(password['password'], 'pass')
 
     def tearDown(self):
-        os.remove('test_passwords.json')
+        if os.path.exists('test_passwords.json'):
+            os.remove('test_passwords.json')
         if os.path.exists('master.txt'):
             os.remove('master.txt')
 
