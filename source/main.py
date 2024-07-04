@@ -1,32 +1,48 @@
-import base64  # Sicherstellen, dass base64 importiert wird
+from getpass import getpass
 from password_manager import PasswordManager
 
 def main():
-    manager = PasswordManager()
-    while True:
-        print("Willkommen zum Passwort-Manager")
-        print("1. Passwort speichern")
-        print("2. Passwort anzeigen")
-        print("3. Beenden")
+    master_password = getpass("Enter master password: ")
+    pm = PasswordManager(master_password)
 
-        choice = input("Wähle eine Option: ")
+    action = input("Do you want to (a)dd a new password, (v)iew passwords, (g)enerate a password, (r)etrieve a password, (e)dit a password, or (d)elete a password? ")
 
-        if choice == '1':
-            website = input("Website: ")
-            username = input("Benutzername: ")
-            password = input("Passwort: ")
-            manager.save_password(website, username, password)
-        elif choice == '2':
-            website = input("Website: ")
-            result = manager.get_password(website)
-            if isinstance(result, dict):
-                print(f"Benutzername: {result['username']}, Passwort: {result['password']}")
-            else:
-                print(result)
-        elif choice == '3':
-            break
-        else:
-            print("Ungültige Wahl, bitte versuche es erneut.")
+    if action == 'a':
+        username = input("Enter username: ")
+        password = getpass("Enter password: ")
+        url = input("Enter URL: ")
+        notes = input("Enter notes: ")
+        categories = input("Enter categories: ")
+
+        pm.save_password(username, password, url, notes, categories)
+        print("Password saved successfully!")
+    
+    elif action == 'v':
+        pm.view_passwords()
+
+    elif action == 'g':
+        length = int(input("Enter the desired password length: "))
+        use_uppercase = input("Include uppercase letters? (y/n): ").lower() == 'y'
+        use_numbers = input("Include numbers? (y/n): ").lower() == 'y'
+        use_special_chars = input("Include special characters? (y/n): ").lower() == 'y'
+        
+        generated_password = pm.generate_password(length, use_uppercase, use_numbers, use_special_chars)
+        print(f"Generated password: {generated_password}")
+
+    elif action == 'r':
+        search_term = input("Enter the URL or username to search for: ")
+        pm.retrieve_password(search_term)
+
+    elif action == 'e':
+        search_term = input("Enter the URL or username to search for: ")
+        pm.edit_password(search_term)
+
+    elif action == 'd':
+        search_term = input("Enter the URL or username to search for: ")
+        pm.delete_password(search_term)
+    
+    else:
+        print("Invalid action!")
 
 if __name__ == "__main__":
     main()
