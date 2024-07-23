@@ -1,4 +1,4 @@
-from source.main import main as password_manager_main
+from source.main import run_password_manager
 
 if __name__ == "__main__":
-    password_manager_main()
+    run_password_manager()

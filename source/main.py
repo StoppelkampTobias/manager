@@ -1,48 +1,61 @@
-from getpass import getpass
-from password_manager import PasswordManager
+import json
+import os
+import getpass
+import hashlib
+from cryptography.fernet import Fernet
 
-def main():
-    master_password = getpass("Enter master password: ")
-    pm = PasswordManager(master_password)
+# Beispiel für die Implementierung einer einfachen Verschlüsselung
+class PasswordManager:
+    def __init__(self, master_password):
+        self.master_password = master_password
+        self.key = self.generate_key(master_password)
+        self.fernet = Fernet(self.key)
+        self.data_file = 'data.json'
+        self.data = self.load_data()
 
-    action = input("Do you want to (a)dd a new password, (v)iew passwords, (g)enerate a password, (r)etrieve a password, (e)dit a password, or (d)elete a password? ")
+    def generate_key(self, password):
+        return base64.urlsafe_b64encode(hashlib.sha256(password.encode()).digest())
 
-    if action == 'a':
-        username = input("Enter username: ")
-        password = getpass("Enter password: ")
-        url = input("Enter URL: ")
-        notes = input("Enter notes: ")
-        categories = input("Enter categories: ")
+    def load_data(self):
+        if os.path.exists(self.data_file):
+            with open(self.data_file, 'rb') as f:
+                encrypted_data = f.read()
+                return json.loads(self.fernet.decrypt(encrypted_data).decode())
+        return {}
 
-        pm.save_password(username, password, url, notes, categories)
-        print("Password saved successfully!")
-    
-    elif action == 'v':
-        pm.view_passwords()
+    def save_data(self):
+        with open(self.data_file, 'wb') as f:
+            encrypted_data = self.fernet.encrypt(json.dumps(self.data).encode())
+            f.write(encrypted_data)
 
-    elif action == 'g':
-        length = int(input("Enter the desired password length: "))
-        use_uppercase = input("Include uppercase letters? (y/n): ").lower() == 'y'
-        use_numbers = input("Include numbers? (y/n): ").lower() == 'y'
-        use_special_chars = input("Include special characters? (y/n): ").lower() == 'y'
-        
-        generated_password = pm.generate_password(length, use_uppercase, use_numbers, use_special_chars)
-        print(f"Generated password: {generated_password}")
+    def add_password(self, site, username, password):
+        self.data[site] = {'username': username, 'password': password}
+        self.save_data()
 
-    elif action == 'r':
-        search_term = input("Enter the URL or username to search for: ")
-        pm.retrieve_password(search_term)
+    def get_password(self, site):
+        return self.data.get(site)
 
-    elif action == 'e':
-        search_term = input("Enter the URL or username to search for: ")
-        pm.edit_password(search_term)
+    def run(self):
+        while True:
+            choice = input("1. Add Password\n2. Get Password\n3. Exit\nChoose an option: ")
+            if choice == '1':
+                site = input("Enter site: ")
+                username = input("Enter username: ")
+                password = getpass.getpass("Enter password: ")
+                self.add_password(site, username, password)
+            elif choice == '2':
+                site = input("Enter site: ")
+                credentials = self.get_password(site)
+                if credentials:
+                    print(f"Username: {credentials['username']}\nPassword: {credentials['password']}")
+                else:
+                    print("No credentials found for this site.")
+            elif choice == '3':
+                break
+            else:
+                print("Invalid choice.")
 
-    elif action == 'd':
-        search_term = input("Enter the URL or username to search for: ")
-        pm.delete_password(search_term)
-    
-    else:
-        print("Invalid action!")
-
-if __name__ == "__main__":
-    main()
+def run_password_manager():
+    master_password = getpass.getpass("Enter master password: ")
+    manager = PasswordManager(master_password)
+    manager.run()

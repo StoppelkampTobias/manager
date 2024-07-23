@@ -1,35 +1,15 @@
-[MASTER]
-# A comma-separated list of package or module names from where C extensions may be loaded.
-extension-pkg-whitelist=
-# Add files or directories to the blacklist. They should be base names, not paths.
-ignore=CVS
-ignore-patterns=
-persistent=yes
-
-[MESSAGES CONTROL]
-# Only show the following messages (add message ids)
-enable=all
-# Disable the following messages (add message ids)
-disable=
-    C0111, # Missing module docstring
-    C0103, # Variable name doesn't conform to snake_case naming style
-
-[REPORTS]
-# Tells whether to display a full report or only the messages
-reports=no
-
-[FORMAT]
-# Maximum number of characters on a single line.
-max-line-length=160
-
 [BASIC]
-# Variable names can be 1 to 30 characters long
-variable-rgx=[a-z_][a-z0-9_]{0,29}$
-# Argument names should match this pattern
-argument-rgx=[a-z_][a-z0-9_]{0,29}$
-# Good variable names which should always be accepted, separated by a comma
-good-names=i,j,k,ex,Run,_
+argument-naming-style=camelCase
+attr-naming-style=camelCase
+class-attribute-naming-style=camelCase
+docstring-min-length=5
+function-naming-style=camelCase
+method-naming-style=camelCase
+module-naming-style=camelCase
+variable-naming-style=camelCase
 
 [DESIGN]
-# Maximum number of arguments for function / method
-max-args=10
+max-attributes=10
+
+[FORMAT]
+max-line-length=160
