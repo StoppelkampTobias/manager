@@ -2,7 +2,7 @@ import unittest
 import json
 import os
 from unittest.mock import patch, mock_open
-from password_manager_v1 import PasswordManager
+from main import PasswordManager
 
 class TestPasswordManagerV1(unittest.TestCase):
     

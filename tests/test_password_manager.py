@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, mock_open
-from password_manager_v2 import PasswordManager, generate_key, encrypt_data, decrypt_data, hash_password, generate_password
+from password_manager import PasswordManager, generate_key, encrypt_data, decrypt_data, hash_password, generate_password
 import json
 import os
 
