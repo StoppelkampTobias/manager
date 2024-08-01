@@ -1,61 +1,74 @@
 import unittest
 from unittest.mock import patch, mock_open
-import sys
+from password_manager_v2 import PasswordManager, generate_key, encrypt_data, decrypt_data, hash_password, generate_password
+import json
 import os
 
-# Fügen Sie den Quellordner zum Systempfad hinzu
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../source')))
-
-from password_manager import PasswordManager
-
-class TestPasswordManager(unittest.TestCase):
+class TestPasswordManagerV2(unittest.TestCase):
 
     def setUp(self):
-        self.pm = PasswordManager("master_password")
+        self.master_password = "testpassword"
+        self.manager = PasswordManager(self.master_password)
+        self.key = self.manager.key
+        self.hashed_master_password = hash_password(self.master_password)
+        self.data = {
+            self.hashed_master_password: [
+                {
+                    "username": "user1",
+                    "password": encrypt_data("pass1", self.key).decode(),
+                    "url": "example.com",
+                    "notes": encrypt_data("notes1", self.key).decode(),
+                    "categories": encrypt_data("category1", self.key).decode(),
+                    "creation_date": encrypt_data("2023-01-01T00:00:00", self.key).decode(),
+                    "password_history": []
+                }
+            ]
+        }
 
-    @patch('builtins.open', new_callable=mock_open, read_data='{}')
-    @patch('os.path.exists', return_value=True)
-    def test_save_password(self, mock_exists, mock_open):
-        self.pm.save_password('test_user', 'test_password', 'test_url', 'test_notes', 'test_category')
-        mock_open.assert_called_with('passwords.json', 'w')
+    def tearDown(self):
+        if os.path.exists("passwords.json"):
+            os.remove("passwords.json")
+        if os.path.exists("key.key"):
+            os.remove("key.key")
 
-    @patch('builtins.open', new_callable=mock_open, read_data='{"hashed_master_password": []}')
-    @patch('os.path.exists', return_value=True)
-    def test_view_passwords(self, mock_exists, mock_open):
-        with patch('json.load', return_value={'hashed_master_password': [{'username': 'test_user', 'password': 'test_password'}]}):
-            with patch('password_manager.decrypt_data', return_value='test_password'):
-                with patch('builtins.print') as mock_print:
-                    self.pm.view_passwords()
-                    mock_print.assert_any_call(f'Username: test_user')
+    @patch("builtins.open", new_callable=mock_open, read_data=json.dumps({}))
+    @patch("os.path.exists", return_value=True)
+    def test_load_data(self, mock_exists, mock_open):
+        self.manager.data = self.data
+        self.manager.save_password("user2", "pass2", "example2.com", "notes2", "category2")
+        self.manager.data = {}  # Clear the current data
+        self.assertEqual(self.manager.load_data(), self.data)
+
+    @patch("builtins.open", new_callable=mock_open)
+    def test_save_password(self, mock_open):
+        self.manager.data = self.data
+        self.manager.save_password("user2", "pass2", "example2.com", "notes2", "category2")
+        mock_open.assert_called_with("passwords.json", "w")
+
+    def test_view_passwords(self):
+        self.manager.data = self.data
+        with patch("builtins.print") as mock_print:
+            self.manager.view_passwords()
+            mock_print.assert_any_call("Username: user1")
+            mock_print.assert_any_call("Password: pass1")
+
+    def test_generate_key(self):
+        key = generate_key()
+        self.assertEqual(len(key), 44)
+
+    def test_encrypt_decrypt_data(self):
+        data = "testdata"
+        encrypted_data = encrypt_data(data, self.key)
+        decrypted_data = decrypt_data(encrypted_data, self.key)
+        self.assertEqual(data, decrypted_data)
+
+    def test_hash_password(self):
+        hashed_password = hash_password(self.master_password)
+        self.assertEqual(len(hashed_password), 64)  # Length of SHA-256 hash
 
     def test_generate_password(self):
-        password = self.pm.generate_password(12)
-        self.assertEqual(len(password), 12)
-
-    @patch('builtins.open', new_callable=mock_open, read_data='{"hashed_master_password": []}')
-    @patch('os.path.exists', return_value=True)
-    def test_retrieve_password(self, mock_exists, mock_open):
-        with patch('json.load', return_value={'hashed_master_password': [{'url': 'test_url', 'username': 'test_user', 'password': 'test_password'}]}):
-            with patch('password_manager.decrypt_data', return_value='test_password'):
-                with patch('builtins.print') as mock_print:
-                    self.pm.retrieve_password('test_url')
-                    mock_print.assert_any_call(f'URL: test_url')
-
-    @patch('builtins.open', new_callable=mock_open, read_data='{"hashed_master_password": []}')
-    @patch('os.path.exists', return_value=True)
-    def test_edit_password(self, mock_exists, mock_open):
-        with patch('json.load', return_value={'hashed_master_password': [{'url': 'test_url', 'username': 'test_user', 'password': 'test_password'}]}):
-            with patch('password_manager.decrypt_data', return_value='test_password'):
-                with patch('password_manager.encrypt_data', return_value='encrypted_data'):
-                    self.pm.edit_password('test_url')
-                    self.assertTrue(mock_open.called)
-
-    @patch('builtins.open', new_callable=mock_open, read_data='{"hashed_master_password": []}')
-    @patch('os.path.exists', return_value=True)
-    def test_delete_password(self, mock_exists, mock_open):
-        with patch('json.load', return_value={'hashed_master_password': [{'url': 'test_url', 'username': 'test_user', 'password': 'test_password'}]}):
-            self.pm.delete_password('test_url')
-            self.assertTrue(mock_open.called)
+        password = generate_password()
+        self.assertEqual(len(password), 12)  # Default length
 
 if __name__ == "__main__":
     unittest.main()
