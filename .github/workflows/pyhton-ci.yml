@@ -26,6 +26,10 @@ jobs:
         echo "pylint_score=INVALID" >> $GITHUB_ENV
         echo "coverage=INVALID" >> $GITHUB_ENV
 
+    - name: Set PYTHONPATH
+      run: |
+        echo "PYTHONPATH=$PYTHONPATH:$(pwd)/source" >> $GITHUB_ENV
+
     - name: Run type checker
       run: |
         mypy source | tee mypy_output.txt

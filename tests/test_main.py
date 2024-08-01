@@ -1,10 +1,15 @@
 import unittest
 import json
 import os
+import sys
 from unittest.mock import patch, mock_open
-from main import PasswordManager
 
-class TestPasswordManagerV1(unittest.TestCase):
+# Add source directory to the Python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'source')))
+
+from password_manager import PasswordManager
+
+class TestPasswordManager(unittest.TestCase):
     
     def setUp(self):
         self.master_password = "testpassword"
