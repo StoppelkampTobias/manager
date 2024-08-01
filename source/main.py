@@ -2,6 +2,7 @@ import json
 import os
 import getpass
 import hashlib
+import base64
 from cryptography.fernet import Fernet
 
 # Beispiel für die Implementierung einer einfachen Verschlüsselung
