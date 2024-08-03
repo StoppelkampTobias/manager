@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 from source.main import PasswordManager
 import string
 
@@ -44,10 +45,31 @@ class TestPasswordManager(unittest.TestCase):
         self.assertTrue(self.manager.check_reused_password('pass'))
         self.assertFalse(self.manager.check_reused_password('newpass'))
 
-    def test_check_pwned_password(self):
-        password = 'password'
-        # Assume that 'password' is a known pwned password
-        self.assertTrue(self.manager.check_pwned_password(password))
+    @patch('source.main.requests.get')
+    def test_check_pwned_password(self, mock_get):
+        mock_response = unittest.mock.Mock()
+        mock_response.status_code = 200
+        mock_response.text = '00000A6D7:1\n00000E8F2:1'
+        mock_get.return_value = mock_response
+
+        pwned_password = 'password'
+        self.assertTrue(self.manager.check_pwned_password(pwned_password))
+
+        safe_password = 'safe_password'
+        self.assertFalse(self.manager.check_pwned_password(safe_password))
+
+    def test_add_password_with_notes_and_category(self):
+        self.manager.add_password('example.com', 'user', 'pass', 'important note', 'work')
+        password = self.manager.get_password('example.com')
+        self.assertEqual(password['notes'], 'important note')
+        self.assertEqual(password['category'], 'work')
+
+    def test_update_password_username_and_notes(self):
+        self.manager.add_password('example.com', 'user', 'pass')
+        self.manager.update_password('example.com', username='newuser', notes='new note')
+        password = self.manager.get_password('example.com')
+        self.assertEqual(password['username'], 'newuser')
+        self.assertEqual(password['notes'], 'new note')
 
 if __name__ == '__main__':
     unittest.main()
