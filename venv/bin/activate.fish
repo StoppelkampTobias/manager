@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/david/dhbw/programmieren1/python/Programmenmtwurf/manager-1/venv"
+set -gx VIRTUAL_ENV "/home/david/dhbw/Programmieren1/python/Programmentwurf/manager/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

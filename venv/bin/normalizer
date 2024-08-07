@@ -1,4 +1,4 @@
-#!/home/david/dhbw/programmieren1/python/Programmenmtwurf/manager-1/venv/bin/python3
+#!/home/david/dhbw/Programmieren1/python/Programmentwurf/manager/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
