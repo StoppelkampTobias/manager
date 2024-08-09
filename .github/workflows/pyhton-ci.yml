@@ -1,4 +1,4 @@
-name: Python CI Example
+name: Python password manager CI
 
 on: [push, pull_request, workflow_dispatch]
 

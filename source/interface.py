@@ -2,17 +2,17 @@
 Interface module for the Password Manager application using Curses
 """
 import curses
-
+from typing import Optional
 
 class CursesInterface:
     """
     Interface class for the Password Manager application using Curses
     """
-    def __init__(self, pm):
+    def __init__(self, pm: object) -> None:
         self.pm = pm
         self.currentRow = 0
 
-    def drawMenu(self, stdscr):
+    def drawMenu(self, stdscr: curses.window) -> None:
         """
         drawMenu method to draw the main menu
         """
@@ -34,7 +34,7 @@ class CursesInterface:
 
         stdscr.refresh()
 
-    def getInput(self, stdscr, prompt):
+    def getInput(self, stdscr: curses.window, prompt: str) -> str:
         """
         getInput method to get user input
         """
@@ -46,7 +46,7 @@ class CursesInterface:
         curses.noecho()  # Disable echoing after input
         return inputStr
 
-    def getPasswordInput(self, stdscr, prompt, checkStrength=False):
+    def getPasswordInput(self, stdscr: curses.window, prompt: str, checkStrength: bool = False) -> Optional[str]:
         """
         getPasswordInput method to get hidden password input
         """
@@ -92,7 +92,7 @@ class CursesInterface:
 
         return passwordStr
 
-    def run(self, stdscr):
+    def run(self, stdscr: curses.window) -> None:
         """
         run method to start the interface
         """
@@ -129,7 +129,7 @@ class CursesInterface:
             elif key == 27:  # ESC key
                 break
 
-    def addPassword(self, stdscr):
+    def addPassword(self, stdscr: curses.window) -> None:
         """
         addPassword method to add a new password
         """
@@ -165,7 +165,7 @@ class CursesInterface:
         stdscr.refresh()
         stdscr.getch()
 
-    def getPassword(self, stdscr):
+    def getPassword(self, stdscr: curses.window) -> None:
         """
         getPassword method to get an existing password
         """
@@ -183,7 +183,7 @@ class CursesInterface:
         stdscr.refresh()
         stdscr.getch()
 
-    def deletePassword(self, stdscr):
+    def deletePassword(self, stdscr: curses.window) -> None:
         """
         deletePassword method to delete an existing password
         """
@@ -193,7 +193,7 @@ class CursesInterface:
         stdscr.refresh()
         stdscr.getch()
 
-    def updatePassword(self, stdscr):
+    def updatePassword(self, stdscr: curses.window) -> None:
         """
         updatePassword method to update an existing password
         """
@@ -207,7 +207,7 @@ class CursesInterface:
         stdscr.refresh()
         stdscr.getch()
 
-    def searchPassword(self, stdscr):
+    def searchPassword(self, stdscr: curses.window) -> None:
         """
         searchPassword method to search for a password
         """
@@ -229,7 +229,7 @@ class CursesInterface:
         stdscr.refresh()
         stdscr.getch()
 
-    def checkPasswordStrength(self, stdscr):
+    def checkPasswordStrength(self, stdscr: curses.window) -> None:
         """
         checkPasswordStrength method to check the strength of a password
         """
@@ -242,7 +242,7 @@ class CursesInterface:
         stdscr.refresh()
         stdscr.getch()
 
-    def checkReusedPassword(self, stdscr):
+    def checkReusedPassword(self, stdscr: curses.window) -> None:
         """
         checkReusedPassword method to check for reused passwords
         """
@@ -264,7 +264,7 @@ class CursesInterface:
         stdscr.refresh()
         stdscr.getch()
 
-    def checkPwnedPassword(self, stdscr):
+    def checkPwnedPassword(self, stdscr: curses.window) -> None:
         """
         checkPwnedPassword method to check for pwned passwords
         """
