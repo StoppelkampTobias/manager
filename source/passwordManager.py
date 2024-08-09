@@ -131,14 +131,7 @@ class PasswordManager:
         if length < 8:
             length = 8  # Ensure the password is at least 8 characters long
         allChars = string.ascii_letters + string.digits + string.punctuation
-        password = ''
-        while not all(
-            any(char.isupper() for char in password),
-            any(char.islower() for char in password),
-            any(char.isdigit() for char in password),
-            any(char in string.punctuation for char in password)
-        ):
-            password = ''.join(random.choice(allChars) for _ in range(length))
+        password = ''.join(random.choice(allChars) for _ in range(length))
         return password
 
     def checkReusedPassword(self, password: str) -> bool:
