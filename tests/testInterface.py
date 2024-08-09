@@ -1,3 +1,5 @@
+#pylint: disable=C)
+#pylint: disable=W)
 import unittest
 from unittest.mock import MagicMock, patch
 import os
