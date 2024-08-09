@@ -10,10 +10,9 @@ import getpass
 import hashlib
 import base64
 import string
+from datetime import datetime
 import requests
 from cryptography.fernet import Fernet
-from datetime import datetime
-
 
 class PasswordManager:
     """

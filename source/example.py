@@ -22,5 +22,5 @@ def generatePassword(length=12, useUppercase=True, useNumbers=True, useSpecial=T
         characters += string.digits
     if useSpecial:
         characters += string.punctuation
-        
+
     return ''.join(random.choice(characters) for i in range(length))
