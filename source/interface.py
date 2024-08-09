@@ -1,13 +1,21 @@
+"""
+Interface module for the Password Manager application using Curses
+"""
 import curses
-import string
-from source.main import PasswordManager  
+
 
 class CursesInterface:
+    """
+    Interface class for the Password Manager application using Curses
+    """
     def __init__(self, pm):
         self.pm = pm
-        self.current_row = 0
+        self.currentRow = 0
 
-    def draw_menu(self, stdscr):
+    def drawMenu(self, stdscr):
+        """
+        drawMenu method to draw the main menu
+        """
         stdscr.clear()
         menu = ["Add Password", "Get Password", "Delete Password", "Update Password", "Search Password",
                 "Check Password Strength", "Check Reused Password", "Check Pwned Password", "Exit"]
@@ -17,7 +25,7 @@ class CursesInterface:
         for idx, row in enumerate(menu):
             x = w // 2 - len(row) // 2
             y = h // 2 - len(menu) // 2 + idx
-            if idx == self.current_row:
+            if idx == self.currentRow:
                 stdscr.attron(curses.color_pair(1))
                 stdscr.addstr(y, x, row)
                 stdscr.attroff(curses.color_pair(1))
@@ -26,16 +34,22 @@ class CursesInterface:
 
         stdscr.refresh()
 
-    def get_input(self, stdscr, prompt):
+    def getInput(self, stdscr, prompt):
+        """
+        getInput method to get user input
+        """
         curses.echo()  # Enable echoing of user input
         stdscr.clear()
         stdscr.addstr(0, 0, prompt)
         stdscr.refresh()
-        input_str = stdscr.getstr().decode()
+        inputStr = stdscr.getstr().decode()
         curses.noecho()  # Disable echoing after input
-        return input_str
+        return inputStr
 
-    def get_password_input(self, stdscr, prompt, check_strength=False):
+    def getPasswordInput(self, stdscr, prompt, checkStrength=False):
+        """
+        getPasswordInput method to get hidden password input
+        """
         stdscr.clear()
         stdscr.addstr(0, 0, prompt)
         stdscr.refresh()
@@ -58,15 +72,15 @@ class CursesInterface:
                 password.append(chr(key))
                 stdscr.addch('*')
 
-        password_str = ''.join(password)
+        passwordStr = ''.join(password)
 
-        if check_strength:
+        if checkStrength:
             # Check password strength after the entire password is entered
-            is_strong, reasons = self.pm.checkPasswordStrength(password_str)
+            isStrong, reasons = self.pm.checkPasswordStrength(passwordStr)
 
             stdscr.move(2, 0)
             stdscr.clrtoeol()
-            if is_strong:
+            if isStrong:
                 stdscr.addstr(2, 0, "Password strength: Strong")
             else:
                 stdscr.addstr(2, 0, "Password strength: Weak")
@@ -76,51 +90,56 @@ class CursesInterface:
             stdscr.refresh()
             stdscr.getch()  # Wait for the user to press a key to continue
 
-        return password_str
-
-
+        return passwordStr
 
     def run(self, stdscr):
+        """
+        run method to start the interface
+        """
         curses.curs_set(0)
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
         while True:
-            self.draw_menu(stdscr)
+            self.drawMenu(stdscr)
             key = stdscr.getch()
 
-            if key == curses.KEY_UP and self.current_row > 0:
-                self.current_row -= 1
-            elif key == curses.KEY_DOWN and self.current_row < 8:
-                self.current_row += 1
+            if key == curses.KEY_UP and self.currentRow > 0:
+                self.currentRow -= 1
+            elif key == curses.KEY_DOWN and self.currentRow < 8:
+                self.currentRow += 1
             elif key == curses.KEY_ENTER or key in [10, 13]:
-                if self.current_row == 0:  # Add Password
-                    self.add_password(stdscr)
-                elif self.current_row == 1:  # Get Password
-                    self.get_password(stdscr)
-                elif self.current_row == 2:  # Delete Password
-                    self.delete_password(stdscr)
-                elif self.current_row == 3:  # Update Password
-                    self.update_password(stdscr)
-                elif self.current_row == 4:  # Search Password
-                    self.search_password(stdscr)
-                elif self.current_row == 5:  # Check Password Strength
-                    self.check_password_strength(stdscr)
-                elif self.current_row == 6:  # Check Reused Password
-                    self.check_reused_password(stdscr)
-                elif self.current_row == 7:  # Check Pwned Password
-                    self.check_pwned_password(stdscr)
-                elif self.current_row == 8:  # Exit
+                if self.currentRow == 0:  # Add Password
+                    self.addPassword(stdscr)
+                elif self.currentRow == 1:  # Get Password
+                    self.getPassword(stdscr)
+                elif self.currentRow == 2:  # Delete Password
+                    self.deletePassword(stdscr)
+                elif self.currentRow == 3:  # Update Password
+                    self.updatePassword(stdscr)
+                elif self.currentRow == 4:  # Search Password
+                    self.searchPassword(stdscr)
+                elif self.currentRow == 5:  # Check Password Strength
+                    self.checkPasswordStrength(stdscr)
+                elif self.currentRow == 6:  # Check Reused Password
+                    self.checkReusedPassword(stdscr)
+                elif self.currentRow == 7:  # Check Pwned Password
+                    self.checkPwnedPassword(stdscr)
+                elif self.currentRow == 8:  # Exit
                     break
             elif key == 27:  # ESC key
                 break
 
-    def add_password(self, stdscr):
-        site = self.get_input(stdscr, "Enter site: ")
-        username = self.get_input(stdscr, "Enter username: ")
-        password = self.get_password_input(stdscr, "Enter password: ", check_strength=True)
+    def addPassword(self, stdscr):
+        """
+        addPassword method to add a new password
+        """
+        site = self.getInput(stdscr, "Enter site: ")
+        username = self.getInput(stdscr, "Enter username: ")
+        password = self.getPasswordInput(stdscr, "Enter password: ", checkStrength=True)
 
-        is_strong, reasons = self.pm.checkPasswordStrength(password)
-        if not is_strong:
+        isStrong, _ = self.pm.checkPasswordStrength(password)
+        if not isStrong:
+            stdscr.clear()  # Clear the screen before displaying the new content
             stdscr.addstr(5, 0, "Password is weak. Would you like to:")
             stdscr.addstr(6, 0, "1. Use the weak password")
             stdscr.addstr(7, 0, "2. Re-enter the password")
@@ -132,22 +151,25 @@ class CursesInterface:
             if choice == ord('1'):
                 pass  # Continue with the weak password
             elif choice == ord('2'):
-                return self.add_password(stdscr)  # Re-enter the password
+                return self.addPassword(stdscr)  # Re-enter the password
             elif choice == ord('3'):
                 password = self.pm.generateStrongPassword()
                 stdscr.addstr(9, 0, f"Generated strong password: {password}")
                 stdscr.refresh()
                 stdscr.getch()
 
-        notes = self.get_input(stdscr, "Enter notes (optional): ")
-        category = self.get_input(stdscr, "Enter category (optional): ")
+        notes = self.getInput(stdscr, "Enter notes (optional): ")
+        category = self.getInput(stdscr, "Enter category (optional): ")
         self.pm.addPassword(site, username, password, notes, category)
         stdscr.addstr(10, 0, "Password added successfully!")
         stdscr.refresh()
         stdscr.getch()
 
-    def get_password(self, stdscr):
-        site = self.get_input(stdscr, "Enter site: ")
+    def getPassword(self, stdscr):
+        """
+        getPassword method to get an existing password
+        """
+        site = self.getInput(stdscr, "Enter site: ")
         passwordDetails = self.pm.getPassword(site)
         stdscr.clear()
         if passwordDetails:
@@ -161,26 +183,35 @@ class CursesInterface:
         stdscr.refresh()
         stdscr.getch()
 
-    def delete_password(self, stdscr):
-        site = self.get_input(stdscr, "Enter site: ")
+    def deletePassword(self, stdscr):
+        """
+        deletePassword method to delete an existing password
+        """
+        site = self.getInput(stdscr, "Enter site: ")
         self.pm.deletePassword(site)
         stdscr.addstr(2, 0, "Password deleted successfully!")
         stdscr.refresh()
         stdscr.getch()
 
-    def update_password(self, stdscr):
-        site = self.get_input(stdscr, "Enter site: ")
-        username = self.get_input(stdscr, "Enter username (press enter to skip): ")
-        password = self.get_password_input(stdscr, "Enter password (press enter to skip): ", check_strength=True)
-        notes = self.get_input(stdscr, "Enter notes (press enter to skip): ")
-        category = self.get_input(stdscr, "Enter category (press enter to skip): ")
+    def updatePassword(self, stdscr):
+        """
+        updatePassword method to update an existing password
+        """
+        site = self.getInput(stdscr, "Enter site: ")
+        username = self.getInput(stdscr, "Enter username (press enter to skip): ")
+        password = self.getPasswordInput(stdscr, "Enter password (press enter to skip): ", checkStrength=True)
+        notes = self.getInput(stdscr, "Enter notes (press enter to skip): ")
+        category = self.getInput(stdscr, "Enter category (press enter to skip): ")
         self.pm.updatePassword(site, username or None, password or None, notes or None, category or None)
         stdscr.addstr(6, 0, "Password updated successfully!")
         stdscr.refresh()
         stdscr.getch()
 
-    def search_password(self, stdscr):
-        keyword = self.get_input(stdscr, "Enter search keyword: ")
+    def searchPassword(self, stdscr):
+        """
+        searchPassword method to search for a password
+        """
+        keyword = self.getInput(stdscr, "Enter search keyword: ")
         results = self.pm.searchPassword(keyword)
         stdscr.clear()
         if results:
@@ -198,8 +229,11 @@ class CursesInterface:
         stdscr.refresh()
         stdscr.getch()
 
-    def check_password_strength(self, stdscr):
-        password = self.get_password_input(stdscr, "Enter password: ", check_strength=True)
+    def checkPasswordStrength(self, stdscr):
+        """
+        checkPasswordStrength method to check the strength of a password
+        """
+        password = self.getPasswordInput(stdscr, "Enter password: ", checkStrength=True)
         stdscr.clear()
         if self.pm.checkPasswordStrength(password)[0]:
             stdscr.addstr(0, 0, "Password is strong!")
@@ -208,40 +242,46 @@ class CursesInterface:
         stdscr.refresh()
         stdscr.getch()
 
-    def check_reused_password(self, stdscr):
+    def checkReusedPassword(self, stdscr):
+        """
+        checkReusedPassword method to check for reused passwords
+        """
         stdscr.clear()
-        reused_passwords = {}
+        reusedPasswords = {}
         for site, details in self.pm.data.items():
             if self.pm.checkReusedPassword(details['password']):
-                reused_passwords[site] = details['password']
-        
-        if reused_passwords:
+                reusedPasswords[site] = details['password']
+
+        if reusedPasswords:
             row = 0
-            for site, password in reused_passwords.items():
+            for site, password in reusedPasswords.items():
                 stdscr.addstr(row, 0, f"Reused password found at site: {site}")
                 stdscr.addstr(row + 1, 0, f"Password: {password}")
                 row += 3
         else:
             stdscr.addstr(0, 0, "No reused passwords found!")
-        
+
         stdscr.refresh()
         stdscr.getch()
 
-    def check_pwned_password(self, stdscr):
+    def checkPwnedPassword(self, stdscr):
+        """
+        checkPwnedPassword method to check for pwned passwords
+        """
         stdscr.clear()
-        pwned_passwords = {}
+        pwnedPasswords = {}
         for site, details in self.pm.data.items():
             if self.pm.checkPwnedPassword(details['password']):
-                pwned_passwords[site] = details['password']
-        
-        if pwned_passwords:
+                pwnedPasswords[site] = details['password']
+
+        if pwnedPasswords:
             row = 0
-            for site, password in pwned_passwords.items():
+            for site, password in pwnedPasswords.items():
                 stdscr.addstr(row, 0, f"Pwned password found at site: {site}")
                 stdscr.addstr(row + 1, 0, f"Password: {password}")
                 row += 3
         else:
             stdscr.addstr(0, 0, "No pwned passwords found!")
-        
+
         stdscr.refresh()
         stdscr.getch()

@@ -1,3 +1,6 @@
+"""
+In this file, we will implement the PasswordManager class that will be used to manage passwords securely.
+"""
 import json
 import random
 import hashlib
@@ -19,9 +22,15 @@ class PasswordManager:
         self.data = {}
 
     def generateKey(self, password):
+        """
+        Generate an encryption key based on the master password.
+        """
         return base64.urlsafe_b64encode(hashlib.sha256(password.encode()).digest())
 
     def loadData(self):
+        """
+        Load and decrypt the password data from the file.
+        """
         try:
             with open('passwords.json', 'rb') as file:
                 encryptedData = file.read()
@@ -30,18 +39,22 @@ class PasswordManager:
             self.data = json.loads(decryptedData)
         except FileNotFoundError:
             self.data = {}
-        except cryptography.fernet.InvalidToken:
-            raise cryptography.fernet.InvalidToken("The master password is incorrect or the data is corrupted.")
-        except Exception as e:
-            raise Exception(f"An unexpected error occurred: {e}")
+        except cryptography.fernet.InvalidToken as exc:
+            raise cryptography.fernet.InvalidToken("The master password is incorrect or the data is corrupted.") from exc
 
     def saveData(self):
+        """
+        Encrypt and save the password data to the file.
+        """
         fernet = Fernet(self.key)
         encryptedData = fernet.encrypt(json.dumps(self.data).encode())
         with open('passwords.json', 'wb') as file:
             file.write(encryptedData)
 
     def addPassword(self, site, username, password, notes="", category=""):
+        """
+        Add a new password entry to the data.
+        """
         self.data[site] = {
             'username': username,
             'password': password,
@@ -52,14 +65,23 @@ class PasswordManager:
         self.saveData()
 
     def getPassword(self, site):
+        """
+        Retrieve a password entry by site name.
+        """
         return self.data.get(site, None)
 
     def deletePassword(self, site):
+        """
+        Delete a password entry by site name.
+        """
         if site in self.data:
             del self.data[site]
             self.saveData()
 
     def updatePassword(self, site, username=None, password=None, notes=None, category=None):
+        """
+        Update an existing password entry.
+        """
         if site in self.data:
             if username:
                 self.data[site]['username'] = username
@@ -72,6 +94,9 @@ class PasswordManager:
             self.saveData()
 
     def searchPassword(self, keyword):
+        """
+        Search for password entries by a keyword.
+        """
         results = {}
         for site, details in self.data.items():
             if keyword.lower() in site.lower() or keyword.lower() in details['username'].lower():
@@ -79,6 +104,9 @@ class PasswordManager:
         return results
 
     def checkPasswordStrength(self, password):
+        """
+        Check the strength of a given password.
+        """
         reasons = []
         if len(password) < 8:
             reasons.append("Password is too short (minimum 8 characters).")
@@ -94,19 +122,28 @@ class PasswordManager:
         return len(reasons) == 0, reasons
 
     def generateStrongPassword(self, length=12):
+        """
+        Generate a strong random password.
+        """
         if length < 8:
             length = 8  # Ensure the password is at least 8 characters long
-        all_chars = string.ascii_letters + string.digits + string.punctuation
-        password = ''.join(random.choice(all_chars) for _ in range(length))
+        allChars = string.ascii_letters + string.digits + string.punctuation
+        password = ''.join(random.choice(allChars) for _ in range(length))
         return password
 
     def checkReusedPassword(self, password):
+        """
+        Check if the given password is reused in any existing entries.
+        """
         for details in self.data.values():
             if details['password'] == password:
                 return True
         return False
 
     def checkPwnedPassword(self, password):
+        """
+        Check if the given password has been compromised using the Pwned Passwords API.
+        """
         hashedPassword = hashlib.sha1(password.encode()).hexdigest().upper()
         prefix, suffix = hashedPassword[:5], hashedPassword[5:]
         response = requests.get(f'https://api.pwnedpasswords.com/range/{prefix}', timeout=5)
