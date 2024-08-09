@@ -3,3 +3,4 @@ coverage==7.5.3
 mypy==1.10.0
 cryptography
 requests
+types-requests

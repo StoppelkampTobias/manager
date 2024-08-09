@@ -6,28 +6,31 @@ import random
 import hashlib
 import base64
 import string
+from typing import Dict, Any, Optional, Tuple, List
 from datetime import datetime
 import requests
 from cryptography.fernet import Fernet
 import cryptography.fernet
+
+
 
 class PasswordManager:
     """
     A class to manage passwords securely.
     """
 
-    def __init__(self, masterPassword):
-        self.masterPassword = masterPassword
-        self.key = self.generateKey(masterPassword)
-        self.data = {}
+    def __init__(self, masterPassword: str) -> None:
+        self.masterPassword: str = masterPassword
+        self.key: bytes = self.generateKey(masterPassword)
+        self.data: Dict[str, Dict[str, Any]] = {}
 
-    def generateKey(self, password):
+    def generateKey(self, password: str) -> bytes:
         """
         Generate an encryption key based on the master password.
         """
         return base64.urlsafe_b64encode(hashlib.sha256(password.encode()).digest())
 
-    def loadData(self):
+    def loadData(self) -> None:
         """
         Load and decrypt the password data from the file.
         """
@@ -42,7 +45,7 @@ class PasswordManager:
         except cryptography.fernet.InvalidToken as exc:
             raise cryptography.fernet.InvalidToken("The master password is incorrect or the data is corrupted.") from exc
 
-    def saveData(self):
+    def saveData(self) -> None:
         """
         Encrypt and save the password data to the file.
         """
@@ -51,7 +54,7 @@ class PasswordManager:
         with open('passwords.json', 'wb') as file:
             file.write(encryptedData)
 
-    def addPassword(self, site, username, password, notes="", category=""):
+    def addPassword(self, site: str, username: Optional[str] = None, password: Optional[str] = None, notes: Optional[str] = None, category: Optional[str] = None) -> None:
         """
         Add a new password entry to the data.
         """
@@ -64,13 +67,13 @@ class PasswordManager:
         }
         self.saveData()
 
-    def getPassword(self, site):
+    def getPassword(self, site: str) -> Optional[Dict[str, Any]]:
         """
         Retrieve a password entry by site name.
         """
         return self.data.get(site, None)
 
-    def deletePassword(self, site):
+    def deletePassword(self, site: str) -> None:
         """
         Delete a password entry by site name.
         """
@@ -78,7 +81,7 @@ class PasswordManager:
             del self.data[site]
             self.saveData()
 
-    def updatePassword(self, site, username=None, password=None, notes=None, category=None):
+    def updatePassword(self, site: str, username: Optional[str] = None, password: Optional[str] = None, notes: Optional[str] = None, category: Optional[str] = None) -> None:
         """
         Update an existing password entry.
         """
@@ -93,7 +96,7 @@ class PasswordManager:
                 self.data[site]['category'] = category
             self.saveData()
 
-    def searchPassword(self, keyword):
+    def searchPassword(self, keyword: str) -> Dict[str, Dict[str, Any]]:
         """
         Search for password entries by a keyword.
         """
@@ -103,7 +106,7 @@ class PasswordManager:
                 results[site] = details
         return results
 
-    def checkPasswordStrength(self, password):
+    def checkPasswordStrength(self, password: str) -> Tuple[bool, List[str]]:
         """
         Check the strength of a given password.
         """
@@ -121,18 +124,17 @@ class PasswordManager:
 
         return len(reasons) == 0, reasons
 
-    def generateStrongPassword(self, length=12):
+    def generateStrongPassword(self, length: int = 12) -> str:
         """
         Generate a strong random password.
         """
         if length < 8:
             length = 8  # Ensure the password is at least 8 characters long
         allChars = string.ascii_letters + string.digits + string.punctuation
-        password = random.choice(string.digits) + random.choice(string.ascii_uppercase) + random.choice(string.ascii_lowercase) + ''.join(random.choice(allChars) for _ in range(length-3))
-        password = ''.join(random.sample(password, len(password)))  # Shuffle the characters
+        password = ''.join(random.choice(allChars) for _ in range(length))
         return password
 
-    def checkReusedPassword(self, password):
+    def checkReusedPassword(self, password: str) -> bool:
         """
         Check if the given password is reused in any existing entries.
         """
@@ -141,7 +143,7 @@ class PasswordManager:
                 return True
         return False
 
-    def checkPwnedPassword(self, password):
+    def checkPwnedPassword(self, password: str) -> bool:
         """
         Check if the given password has been compromised using the Pwned Passwords API.
         """
