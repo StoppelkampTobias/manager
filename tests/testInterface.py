@@ -15,75 +15,74 @@ class TestCursesInterface(unittest.TestCase):
         self.pm = MagicMock()
         self.interface = CursesInterface(self.pm)
 
-    def test_initialization(self):
+    def testInitialization(self):
         self.assertIsInstance(self.interface, CursesInterface)
         self.assertEqual(self.interface.pm, self.pm)
 
     @patch('source.interface.curses')
-    def test_drawMenu(self, mock_curses):
+    def testDrawMenu(self, mockCurses):
         stdscr = MagicMock()
-        mock_curses.color_pair.return_value = 1
+        mockCurses.color_pair.return_value = 1
         stdscr.getmaxyx.return_value = (24, 80)
         self.interface.drawMenu(stdscr)
         self.assertEqual(stdscr.addstr.call_count, 9)
 
     @patch('source.interface.curses')
-    def test_drawMenu_different_size(self, mock_curses):
+    def testDrawMenuDifferentSize(self, mockCurses):
         stdscr = MagicMock()
-        mock_curses.color_pair.return_value = 1
+        mockCurses.color_pair.return_value = 1
         stdscr.getmaxyx.return_value = (30, 100)
         self.interface.drawMenu(stdscr)
         self.assertEqual(stdscr.addstr.call_count, 9)
 
     @patch('source.interface.curses')
-    def test_getInput(self, mock_curses):
+    def testGetInput(self, mockCurses):
         stdscr = MagicMock()
         stdscr.getstr.return_value = b'test_input'
         result = self.interface.getInput(stdscr, "Enter something: ")
         self.assertEqual(result, 'test_input')
 
     @patch('source.interface.curses')
-    def test_getInput_empty(self, mock_curses):
+    def testGetInputEmpty(self, mockCurses):
         stdscr = MagicMock()
         stdscr.getstr.return_value = b''
         result = self.interface.getInput(stdscr, "Enter something: ")
         self.assertEqual(result, '')
 
     @patch('source.interface.curses')
-    def test_getPasswordInput(self, mock_curses):
+    def testGetPasswordInput(self, mockCurses):
         stdscr = MagicMock()
         stdscr.getch.side_effect = [ord('p'), ord('a'), ord('s'), ord('s'), 10]
         result = self.interface.getPasswordInput(stdscr, "Enter password: ")
         self.assertEqual(result, 'pass')
 
     @patch('source.interface.curses')
-    def test_getPasswordInput_empty(self, mock_curses):
+    def testGetPasswordInputEmpty(self, mockCurses):
         stdscr = MagicMock()
         stdscr.getch.side_effect = [10]
         result = self.interface.getPasswordInput(stdscr, "Enter password: ")
         self.assertEqual(result, '')
 
     @patch('source.interface.curses')
-    def test_run(self, mock_curses):
+    def testRun(self, mockCurses):
         stdscr = MagicMock()
-        mock_curses.KEY_DOWN = 258
-        mock_curses.KEY_UP = 259
-        mock_curses.KEY_ENTER = 10
+        mockCurses.KEY_DOWN = 258
+        mockCurses.KEY_UP = 259
+        mockCurses.KEY_ENTER = 10
         stdscr.getmaxyx.return_value = (24, 80)  # Mock the terminal size
 
         stdscr.getch.side_effect = [
-            mock_curses.KEY_DOWN,  # Move to 'Get Password'
-            mock_curses.KEY_ENTER,  # Select 'Get Password'
+            mockCurses.KEY_DOWN,  # Move to 'Get Password'
+            mockCurses.KEY_ENTER,  # Select 'Get Password'
             27  # Exit
         ]
 
-        with patch.object(self.interface, 'getPassword') as mock_getPassword:
+        with patch.object(self.interface, 'getPassword') as mockGetPassword:
             self.interface.run(stdscr)
-            mock_getPassword.assert_called_once()
-
+            mockGetPassword.assert_called_once()
 
     @patch('source.interface.curses')
-    def test_addPassword_strong(self, mock_curses):
+    def testAddPasswordStrong(self, mockCurses):
         stdscr = MagicMock()
         self.pm.checkPasswordStrength.return_value = (True, [])
 
@@ -93,7 +92,7 @@ class TestCursesInterface(unittest.TestCase):
             self.pm.addPassword.assert_called_once_with("example.com", "user", "StrongPass123", "", "")
 
     @patch('source.interface.curses')
-    def test_addPassword_generate_strong(self, mock_curses):
+    def testAddPasswordGenerateStrong(self, mockCurses):
         stdscr = MagicMock()
         self.pm.checkPasswordStrength.return_value = (False, ["too short"])
         self.pm.generateStrongPassword.return_value = "StrongPass123"
@@ -104,9 +103,8 @@ class TestCursesInterface(unittest.TestCase):
             self.interface.addPassword(stdscr)
             self.pm.addPassword.assert_called_once_with("example.com", "user", "StrongPass123", "", "")
 
-
     @patch('source.interface.curses')
-    def test_getPassword(self, mock_curses):
+    def testGetPassword(self, mockCurses):
         stdscr = MagicMock()
         self.pm.getPassword.return_value = {
             'username': 'user',
@@ -122,7 +120,7 @@ class TestCursesInterface(unittest.TestCase):
             stdscr.addstr.assert_any_call(0, 0, "Username: user")
 
     @patch('source.interface.curses')
-    def test_deletePassword(self, mock_curses):
+    def testDeletePassword(self, mockCurses):
         stdscr = MagicMock()
 
         with patch.object(self.interface, 'getInput', return_value="example.com"):
@@ -131,7 +129,7 @@ class TestCursesInterface(unittest.TestCase):
             stdscr.addstr.assert_called_with(2, 0, "Password deleted successfully!")
 
     @patch('source.interface.curses')
-    def test_updatePassword(self, mock_curses):
+    def testUpdatePassword(self, mockCurses):
         stdscr = MagicMock()
 
         with patch.object(self.interface, 'getInput', return_value="example.com"), \
@@ -140,7 +138,7 @@ class TestCursesInterface(unittest.TestCase):
             self.pm.updatePassword.assert_called_once_with("example.com", "example.com", "newpass", "example.com", "example.com")
 
     @patch('source.interface.curses')
-    def test_searchPassword(self, mock_curses):
+    def testSearchPassword(self, mockCurses):
         stdscr = MagicMock()
         self.pm.searchPassword.return_value = {
             'example.com': {
@@ -158,7 +156,7 @@ class TestCursesInterface(unittest.TestCase):
             stdscr.addstr.assert_any_call(0, 0, "Site: example.com")
 
     @patch('source.interface.curses')
-    def test_checkPwnedPassword_with_pwned_passwords(self, mock_curses):
+    def testCheckPwnedPasswordWithPwnedPasswords(self, mockCurses):
         stdscr = MagicMock()
         # Mock the pm data and checkPwnedPassword method
         self.pm.data = {
@@ -176,7 +174,7 @@ class TestCursesInterface(unittest.TestCase):
         stdscr.getch.assert_called_once()
 
     @patch('source.interface.curses')
-    def test_checkPwnedPassword_no_pwned_passwords(self, mock_curses):
+    def testCheckPwnedPasswordNoPwnedPasswords(self, mockCurses):
         stdscr = MagicMock()
         # Mock the pm data and checkPwnedPassword method
         self.pm.data = {
@@ -193,7 +191,7 @@ class TestCursesInterface(unittest.TestCase):
         stdscr.getch.assert_called_once()
 
     @patch('source.interface.curses')
-    def test_checkReusedPassword_with_reused_passwords(self, mock_curses):
+    def testCheckReusedPasswordWithReusedPasswords(self, mockCurses):
         stdscr = MagicMock()
         # Mock the pm data and checkReusedPassword method
         self.pm.data = {
@@ -214,7 +212,7 @@ class TestCursesInterface(unittest.TestCase):
         stdscr.getch.assert_called_once()
 
     @patch('source.interface.curses')
-    def test_checkReusedPassword_no_reused_passwords(self, mock_curses):
+    def testCheckReusedPasswordNoReusedPasswords(self, mockCurses):
         stdscr = MagicMock()
         # Mock the pm data and checkReusedPassword method
         self.pm.data = {
