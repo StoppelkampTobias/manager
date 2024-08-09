@@ -155,5 +155,40 @@ class TestCursesInterface(unittest.TestCase):
             self.pm.searchPassword.assert_called_once_with("example")
             stdscr.addstr.assert_any_call(0, 0, "Site: example.com")
 
+    @patch('source.interface.curses')
+    def test_checkPwnedPassword_with_pwned_passwords(self, mock_curses):
+        stdscr = MagicMock()
+        # Mock the pm data and checkPwnedPassword method
+        self.pm.data = {
+            'example.com': {'password': '123456'},
+            'another.com': {'password': 'password'}
+        }
+        self.pm.checkPwnedPassword.side_effect = lambda password: password in ['123456']
+
+        self.interface.checkPwnedPassword(stdscr)
+
+        stdscr.clear.assert_called_once()
+        stdscr.addstr.assert_any_call(0, 0, "Pwned password found at site: example.com")
+        stdscr.addstr.assert_any_call(1, 0, "Password: 123456")
+        stdscr.refresh.assert_called_once()
+        stdscr.getch.assert_called_once()
+
+    @patch('source.interface.curses')
+    def test_checkPwnedPassword_no_pwned_passwords(self, mock_curses):
+        stdscr = MagicMock()
+        # Mock the pm data and checkPwnedPassword method
+        self.pm.data = {
+            'example.com': {'password': 'securepassword'},
+            'another.com': {'password': 'anothersecurepassword'}
+        }
+        self.pm.checkPwnedPassword.side_effect = lambda password: False
+
+        self.interface.checkPwnedPassword(stdscr)
+
+        stdscr.clear.assert_called_once()
+        stdscr.addstr.assert_called_once_with(0, 0, "No pwned passwords found!")
+        stdscr.refresh.assert_called_once()
+        stdscr.getch.assert_called_once()
+
 if __name__ == '__main__':
     unittest.main()
