@@ -13,11 +13,23 @@ class TestCursesInterface(unittest.TestCase):
         self.pm = MagicMock()
         self.interface = CursesInterface(self.pm)
 
+    def test_initialization(self):
+        self.assertIsInstance(self.interface, CursesInterface)
+        self.assertEqual(self.interface.pm, self.pm)
+
     @patch('source.interface.curses')
     def test_drawMenu(self, mock_curses):
         stdscr = MagicMock()
         mock_curses.color_pair.return_value = 1
-        stdscr.getmaxyx.return_value = (24, 80)  # Set the return value for getmaxyx
+        stdscr.getmaxyx.return_value = (24, 80)
+        self.interface.drawMenu(stdscr)
+        self.assertEqual(stdscr.addstr.call_count, 9)
+
+    @patch('source.interface.curses')
+    def test_drawMenu_different_size(self, mock_curses):
+        stdscr = MagicMock()
+        mock_curses.color_pair.return_value = 1
+        stdscr.getmaxyx.return_value = (30, 100)
         self.interface.drawMenu(stdscr)
         self.assertEqual(stdscr.addstr.call_count, 9)
 
@@ -29,6 +41,13 @@ class TestCursesInterface(unittest.TestCase):
         self.assertEqual(result, 'test_input')
 
     @patch('source.interface.curses')
+    def test_getInput_empty(self, mock_curses):
+        stdscr = MagicMock()
+        stdscr.getstr.return_value = b''
+        result = self.interface.getInput(stdscr, "Enter something: ")
+        self.assertEqual(result, '')
+
+    @patch('source.interface.curses')
     def test_getPasswordInput(self, mock_curses):
         stdscr = MagicMock()
         stdscr.getch.side_effect = [ord('p'), ord('a'), ord('s'), ord('s'), 10]
@@ -36,9 +55,24 @@ class TestCursesInterface(unittest.TestCase):
         self.assertEqual(result, 'pass')
 
     @patch('source.interface.curses')
+    def test_getPasswordInput_empty(self, mock_curses):
+        stdscr = MagicMock()
+        stdscr.getch.side_effect = [10]
+        result = self.interface.getPasswordInput(stdscr, "Enter password: ")
+        self.assertEqual(result, '')
+
+    @patch('source.interface.curses')
     def test_run(self, mock_curses):
         # Add your test implementation here
         pass
+
+    @patch('source.interface.curses')
+    def test_handle_error(self, mock_curses):
+        stdscr = MagicMock()
+        stdscr.getmaxyx.return_value = (24, 80)
+        mock_curses.color_pair.side_effect = Exception("Error")
+        with self.assertRaises(Exception):
+            self.interface.drawMenu(stdscr)
 
 if __name__ == '__main__':
     unittest.main()
