@@ -190,5 +190,43 @@ class TestCursesInterface(unittest.TestCase):
         stdscr.refresh.assert_called_once()
         stdscr.getch.assert_called_once()
 
+    @patch('source.interface.curses')
+    def test_checkReusedPassword_with_reused_passwords(self, mock_curses):
+        stdscr = MagicMock()
+        # Mock the pm data and checkReusedPassword method
+        self.pm.data = {
+            'example.com': {'password': 'reusedpassword'},
+            'another.com': {'password': 'reusedpassword'},
+            'unique.com': {'password': 'uniquepassword'}
+        }
+        self.pm.checkReusedPassword.side_effect = lambda password: password == 'reusedpassword'
+
+        self.interface.checkReusedPassword(stdscr)
+
+        stdscr.clear.assert_called_once()
+        stdscr.addstr.assert_any_call(0, 0, "Reused password found at site: example.com")
+        stdscr.addstr.assert_any_call(1, 0, "Password: reusedpassword")
+        stdscr.addstr.assert_any_call(3, 0, "Reused password found at site: another.com")
+        stdscr.addstr.assert_any_call(4, 0, "Password: reusedpassword")
+        stdscr.refresh.assert_called_once()
+        stdscr.getch.assert_called_once()
+
+    @patch('source.interface.curses')
+    def test_checkReusedPassword_no_reused_passwords(self, mock_curses):
+        stdscr = MagicMock()
+        # Mock the pm data and checkReusedPassword method
+        self.pm.data = {
+            'example.com': {'password': 'uniquepassword1'},
+            'another.com': {'password': 'uniquepassword2'}
+        }
+        self.pm.checkReusedPassword.side_effect = lambda password: False
+
+        self.interface.checkReusedPassword(stdscr)
+
+        stdscr.clear.assert_called_once()
+        stdscr.addstr.assert_called_once_with(0, 0, "No reused passwords found!")
+        stdscr.refresh.assert_called_once()
+        stdscr.getch.assert_called_once()
+
 if __name__ == '__main__':
     unittest.main()
