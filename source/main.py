@@ -5,8 +5,8 @@ import base64
 from cryptography.fernet import Fernet
 from datetime import datetime
 import secrets
-import requests  # Hinzugefügt
-import string  # Hinzugefügt
+import requests  #hinzugefügt
+import string  #hinzugefügt
 
 class PasswordManager:
     def __init__(self, master_password):
