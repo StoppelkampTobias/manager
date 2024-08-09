@@ -1,24 +1,50 @@
+# pylint: disable=C)
+"""
+disables pylint warning for invalid constant name
+"""
+
 import unittest
 import string
-from source.example import generate_password
+from source.example import generatePassword
 
-class TestUtils(unittest.TestCase):
 
-    def test_generate_password_length(self):
-        password = generate_password(16)
-        self.assertEqual(len(password), 16)
+class TestPasswordGenerator(unittest.TestCase):
 
-    def test_generate_password_uppercase(self):
-        password = generate_password(use_uppercase=True)
-        self.assertTrue(any(char.isupper() for char in password))
+    def test_default_password_length(self):
+        password = generatePassword()
+        self.assertEqual(len(password), 12, "Default password length should be 12")
 
-    def test_generate_password_numbers(self):
-        password = generate_password(use_numbers=True)
-        self.assertTrue(any(char.isdigit() for char in password))
+    def test_custom_password_length(self):
+        password = generatePassword(length=16)
+        self.assertEqual(len(password), 16, "Custom password length should be 16")
 
-    def test_generate_password_special(self):
-        password = generate_password(use_special=True)
-        self.assertTrue(any(char in string.punctuation for char in password))
+    def test_password_with_uppercase(self):
+        password = generatePassword(useUppercase=True)
+        self.assertTrue(any(c.isupper() for c in password), "Password should contain uppercase letters")
 
-if __name__ == '__main__':
+    def test_password_without_uppercase(self):
+        password = generatePassword(useUppercase=False)
+        self.assertFalse(any(c.isupper() for c in password), "Password should not contain uppercase letters")
+
+    def test_password_with_numbers(self):
+        password = generatePassword(useNumbers=True)
+        self.assertTrue(any(c.isdigit() for c in password), "Password should contain numbers")
+
+    def test_password_without_numbers(self):
+        password = generatePassword(useNumbers=False)
+        self.assertFalse(any(c.isdigit() for c in password), "Password should not contain numbers")
+
+    def test_password_with_special_characters(self):
+        password = generatePassword(useSpecial=True)
+        self.assertTrue(any(c in string.punctuation for c in password), "Password should contain special characters")
+
+    def test_password_without_special_characters(self):
+        password = generatePassword(useSpecial=False)
+        self.assertFalse(any(c in string.punctuation for c in password), "Password should not contain special characters")
+
+    def test_password_with_all_disabled(self):
+        password = generatePassword(useUppercase=False, useNumbers=False, useSpecial=False)
+        self.assertTrue(all(c.islower() for c in password), "Password should contain only lowercase letters")
+
+if __name__ == "__main__":
     unittest.main()
