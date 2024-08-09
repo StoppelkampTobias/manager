@@ -42,10 +42,10 @@ def main(stdscr: Any) -> None:
     """
     curses.curs_set(0)
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
-    max_attempts = 3
+    maxAttempts = 3
     attempts = 0
 
-    while attempts < max_attempts:
+    while attempts < maxAttempts:
         try:
             masterPassword = getHiddenPassword(stdscr, "Enter your master password: ")
             pm = PasswordManager(masterPassword)
@@ -62,7 +62,7 @@ def main(stdscr: Any) -> None:
             stdscr.refresh()
             stdscr.getch()
 
-    if attempts == max_attempts:
+    if attempts == maxAttempts:
         stdscr.clear()
         stdscr.addstr(0, 0, "Maximum attempts reached. Exiting...")
         stdscr.refresh()
