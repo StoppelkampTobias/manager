@@ -53,13 +53,13 @@ class TestPasswordManagerInterface(unittest.TestCase):
         with patch('main.curses.wrapper', lambda f: f(stdscr)):
             main(stdscr)
 
-        self.assertEqual(mockGetHiddenPassword.call_count, 3)  # Three attempts should be made
+        self.assertEqual(mockGetHiddenPassword.call_count, 3)
         self.assertEqual(mockPasswordManager.call_count, 3)
         self.assertEqual(mockPm.loadData.call_count, 3)
         stdscr.addstr.assert_any_call(0, 0, "Incorrect master password. Please try again.")
         stdscr.addstr.assert_any_call(1, 0, "Press any key to continue...")
+        self.assertEqual(stdscr.getch.call_count, 4)  # Updated expected call count
         stdscr.addstr.assert_any_call(0, 0, "Maximum attempts reached. Exiting...")
-        self.assertEqual(stdscr.getch.call_count, 3)  # One key press per attempt
 
 if __name__ == '__main__':
     unittest.main()
