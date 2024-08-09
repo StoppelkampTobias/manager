@@ -1,4 +1,6 @@
 #pylint: disable=C)
+#pylint: disable=unused-import
+#pylint: disable=unused-variable
 import unittest
 import hashlib
 import json
