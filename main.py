@@ -43,7 +43,10 @@ def main(stdscr: Any) -> None:
     curses.curs_set(0)
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
-    while True:
+    maxAttempts = 3
+    attempts = 0
+
+    while attempts < maxAttempts:
         try:
             masterPassword = getHiddenPassword(stdscr, "Enter your master password: ")
             pm = PasswordManager(masterPassword)
@@ -53,12 +56,19 @@ def main(stdscr: Any) -> None:
             break  # If the password is correct, proceed to the interface
 
         except cryptography.fernet.InvalidToken:
-            stdscr.clear()
-            stdscr.addstr(0, 0, "Incorrect master password. Please try again.")
-            stdscr.addstr(1, 0, "Press any key to continue...")
-            stdscr.refresh()
-            stdscr.getch()
-
+            attempts += 1
+            if attempts < maxAttempts:
+                stdscr.clear()
+                stdscr.addstr(0, 0, "Incorrect master password. Please try again.")
+                stdscr.addstr(1, 0, f"Attempt {attempts}/{maxAttempts}")
+                stdscr.addstr(2, 0, "Press any key to continue...")
+                stdscr.refresh()
+                stdscr.getch()
+            else:
+                stdscr.clear()
+                stdscr.addstr(0, 0, "Maximum attempts reached. Exiting...")
+                stdscr.refresh()
+                stdscr.getch()
 
 if __name__ == "__main__":
     curses.wrapper(main)
