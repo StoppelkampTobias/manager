@@ -1,5 +1,5 @@
 """
-This module contains utility functions for password generation.
+This module contains an example function that generates a random password.
 """
 
 import random
@@ -16,11 +16,24 @@ def generatePassword(length=12, useUppercase=True, useNumbers=True, useSpecial=T
     :return: A randomly generated password as a string.
     """
     characters = string.ascii_lowercase
+    password = []
+
     if useUppercase:
         characters += string.ascii_uppercase
+        password.append(random.choice(string.ascii_uppercase))
+
     if useNumbers:
         characters += string.digits
+        password.append(random.choice(string.digits))
+
     if useSpecial:
         characters += string.punctuation
+        password.append(random.choice(string.punctuation))
 
-    return ''.join(random.choice(characters) for i in range(length))
+    # Fill the rest of the password length with random choices from all allowed characters
+    password += [random.choice(characters) for _ in range(length - len(password))]
+
+    # Shuffle the resulting list to ensure random distribution of required characters
+    random.shuffle(password)
+
+    return ''.join(password)
