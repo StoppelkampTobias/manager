@@ -3,7 +3,7 @@ Main file to run the password manager interface.
 """
 import curses
 import cryptography.fernet
-from source.main import PasswordManager
+from source.passwordManager import PasswordManager
 from source.interface import CursesInterface
 
 
