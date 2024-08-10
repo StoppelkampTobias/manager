@@ -78,7 +78,7 @@ class TestPasswordManager(unittest.TestCase):
         isStrong, reasons = self.passwordManager.checkPasswordStrength(strongPassword)
         self.assertTrue(isStrong)
         self.assertEqual(len(reasons), 0)
-
+    
     def testGenerateStrongPassword(self):
         password = self.passwordManager.generateStrongPassword(12)
         isStrong, reasons = self.passwordManager.checkPasswordStrength(password)
@@ -87,7 +87,7 @@ class TestPasswordManager(unittest.TestCase):
             print(f"Reasons for weakness: {reasons}")
         self.assertTrue(isStrong)
         self.assertEqual(len(password), 12)
-
+    
 
     def testCheckReusedPassword(self):
         self.passwordManager.data = {'example.com': {'username': 'user', 'password': 'pass'}}
