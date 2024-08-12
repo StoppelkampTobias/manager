@@ -271,18 +271,22 @@ class CursesInterface:
         """
         stdscr.clear()
         pwnedPasswords: dict[str, str] = {}
-        for site, details in self.pm.data.items():
-            if self.pm.checkPwnedPassword(details['password']):
-                pwnedPasswords[site] = details['password']
+        try:
+            for site, details in self.pm.data.items():
+                if self.pm.checkPwnedPassword(details['password']):
+                    pwnedPasswords[site] = details['password']
 
-        if pwnedPasswords:
-            row: int = 0
-            for site, password in pwnedPasswords.items():
-                stdscr.addstr(row, 0, f"Pwned password found at site: {site}")
-                stdscr.addstr(row + 1, 0, f"Password: {password}")
-                row += 3
-        else:
-            stdscr.addstr(0, 0, "No pwned passwords found!")
+            if pwnedPasswords:
+                row: int = 0
+                for site, password in pwnedPasswords.items():
+                    stdscr.addstr(row, 0, f"Pwned password found at site: {site}")
+                    stdscr.addstr(row + 1, 0, f"Password: {password}")
+                    row += 3
+            else:
+                stdscr.addstr(0, 0, "No pwned passwords found!")
+
+        except ValueError as e:
+            stdscr.addstr(0, 0, f"An error occurred: {str(e)}")
 
         stdscr.refresh()
         stdscr.getch()

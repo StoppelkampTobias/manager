@@ -149,10 +149,13 @@ class PasswordManager:
         """
         Check if the given password has been compromised using the Pwned Passwords API.
         """
-        hashedPassword = hashlib.sha1(password.encode()).hexdigest().upper()
-        prefix, suffix = hashedPassword[:5], hashedPassword[5:]
-        response = requests.get(f'https://api.pwnedpasswords.com/range/{prefix}', timeout=5)
-        if response.status_code == 200:
-            hashes = (line.split(':') for line in response.text.splitlines())
-            return any(s == suffix for s, _ in hashes)
+        try:
+            hashedPassword = hashlib.sha1(password.encode()).hexdigest().upper()
+            prefix, suffix = hashedPassword[:5], hashedPassword[5:]
+            response = requests.get(f'https://api.pwnedpasswords.com/range/{prefix}', timeout=5)
+            if response.status_code == 200:
+                hashes = (line.split(':') for line in response.text.splitlines())
+                return any(s == suffix for s, _ in hashes)
+        except requests.exceptions.RequestException:
+            pass
         return False
