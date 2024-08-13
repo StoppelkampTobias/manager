@@ -161,7 +161,17 @@ class CursesInterface:
         notes: str = self.getInput(stdscr, "Enter notes (optional): ")
         category: str = self.getInput(stdscr, "Enter category (optional): ")
         self.pm.addPassword(site, username, password, notes, category)
-        stdscr.addstr(10, 0, "Password added successfully!")
+
+        # Get the maximum dimensions of the screen
+        h, w = stdscr.getmaxyx()
+
+        # Ensure the coordinates are within bounds
+
+        if 10 < h and 0 < w:
+            stdscr.addstr(10, 0, "Password added successfully!")
+        else:
+            stdscr.addstr(0, 0, "Screen size too small to display message")
+
         stdscr.refresh()
         stdscr.getch()
 
