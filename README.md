@@ -64,3 +64,5 @@ To check the test coverage and test the functionality of the password manager, e
 ```bash
 python -m unittest discover
 ```
+
+When you have any questions you can contact: Tobias Stoppelkamp: stoppelkamp055@gmail.com or David Prinz: david.prinz1123@gmail.com

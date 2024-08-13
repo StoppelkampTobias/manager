@@ -161,7 +161,13 @@ class CursesInterface:
         notes: str = self.getInput(stdscr, "Enter notes (optional): ")
         category: str = self.getInput(stdscr, "Enter category (optional): ")
         self.pm.addPassword(site, username, password, notes, category)
-        stdscr.addstr(10, 0, "Password added successfully!")
+
+        height, width = stdscr.getmaxyx()
+        if height > 10 and width > len("Password added successfully!"):
+            stdscr.addstr(10, 0, "Password added successfully!")
+        else:
+            stdscr.addstr(0, 0, "Password added successfully!")
+        
         stdscr.refresh()
         stdscr.getch()
 
@@ -189,7 +195,13 @@ class CursesInterface:
         """
         site: str = self.getInput(stdscr, "Enter site: ")
         self.pm.deletePassword(site)
-        stdscr.addstr(2, 0, "Password deleted successfully!")
+
+        height, width = stdscr.getmaxyx()
+        if height > 2 and width > len("Password deleted successfully!"):
+            stdscr.addstr(2, 0, "Password deleted successfully!")
+        else:
+            stdscr.addstr(0, 0, "Password deleted successfully!")
+
         stdscr.refresh()
         stdscr.getch()
 
@@ -203,10 +215,15 @@ class CursesInterface:
         notes: Optional[str] = self.getInput(stdscr, "Enter notes (press enter to skip): ")
         category: Optional[str] = self.getInput(stdscr, "Enter category (press enter to skip): ")
         self.pm.updatePassword(site, username or None, password or None, notes or None, category or None)
-        stdscr.addstr(6, 0, "Password updated successfully!")
+
+        height, width = stdscr.getmaxyx()
+        if height > 6 and width > len("Password updated successfully!"):
+            stdscr.addstr(6, 0, "Password updated successfully!")
+        else:
+            stdscr.addstr(0, 0, "Password updated successfully!")
+
         stdscr.refresh()
         stdscr.getch()
-
 
     def searchPassword(self, stdscr: Any) -> None:
         """
